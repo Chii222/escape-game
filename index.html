@@ -38,8 +38,18 @@
 
     .room-wrap {
       position: relative;
-      aspect-ratio: 16 / 9;
-      background: #000 url('./room.png') center center / cover no-repeat;
+      background: #000;
+    }
+
+    .room-stage {
+      position: relative;
+      width: 100%;
+    }
+
+    .room-image {
+      display: block;
+      width: 100%;
+      height: auto;
     }
 
     .spot {
@@ -60,11 +70,11 @@
       background: rgba(255, 255, 255, 0.05);
     }
 
-    .desk { left: 120px; top: 470px; width: 320px; height: 160px; }
-    .wall-panel { left: 130px; top: 220px; width: 140px; height: 140px; }
-    .switch { left: 420px; top: 300px; width: 80px; height: 120px; }
-    .door { left: 520px; top: 180px; width: 240px; height: 520px; }
-    .shelf { left: 820px; top: 220px; width: 260px; height: 520px; }
+    .desk { left: 10%; top: 52.22%; width: 26.67%; height: 17.78%; }
+    .wall-panel { left: 10.83%; top: 24.44%; width: 11.67%; height: 15.56%; }
+    .switch { left: 35%; top: 33.33%; width: 6.67%; height: 13.33%; }
+    .door { left: 43.33%; top: 20%; width: 20%; height: 57.78%; }
+    .shelf { left: 68.33%; top: 24.44%; width: 21.67%; height: 57.78%; }
 
     .overlay {
       position: absolute;
@@ -129,7 +139,6 @@
     .clear.show { display: block; }
 
     @media (max-width: 880px) {
-      .room-wrap { aspect-ratio: 4 / 3; }
       .help { max-width: 75%; }
       .status-panel { font-size: 12px; min-width: 180px; }
       /* Hotspot positions are percentage-based and stay aligned responsively. */
@@ -147,11 +156,14 @@
 
       <div class="overlay status-panel" id="statusText"></div>
 
-      <button class="spot desk" onclick="interact('desk')" aria-label="机"></button>
-      <button class="spot wall-panel" onclick="interact('wall')" aria-label="壁のパネル"></button>
-      <button class="spot switch" onclick="interact('switch')" aria-label="スイッチ"></button>
-      <button class="spot shelf" onclick="interact('shelf')" aria-label="棚"></button>
-      <button class="spot door" onclick="interact('door')" aria-label="ドア"></button>
+      <div class="room-stage">
+        <img class="room-image" src="./room.png" alt="部屋">
+        <button class="spot desk" onclick="interact('desk')" aria-label="机"></button>
+        <button class="spot wall-panel" onclick="interact('wall')" aria-label="壁のパネル"></button>
+        <button class="spot switch" onclick="interact('switch')" aria-label="スイッチ"></button>
+        <button class="spot shelf" onclick="interact('shelf')" aria-label="棚"></button>
+        <button class="spot door" onclick="interact('door')" aria-label="ドア"></button>
+      </div>
 
       <div class="overlay inventory-panel">
         <div class="inventory-title">持ち物（クリックで選択）</div>
