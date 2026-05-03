@@ -301,18 +301,27 @@
       <div id="puzzle2" class="puzzle">
         <div class="title">謎 2：古い金庫</div>
         <div class="text">
-          金庫の横に紙が貼られている。<br><br>
+          金庫の横にメモがある。<br><br>
+          <strong>「上から読まず、暗い順に読め」</strong><br><br>
+          部屋には4つのランプがある。<br>
+          ランプには文字と明るさが書かれている。<br><br>
           <strong>
-            月 = 1<br>
-            火 = 2<br>
-            水 = 3<br>
-            木 = 4<br>
-            金 = ?
+            A：明るさ 4<br>
+            B：明るさ 1<br>
+            C：明るさ 3<br>
+            D：明るさ 2
+          </strong><br><br>
+          別の紙にはこう書かれている。<br>
+          <strong>
+            A = 7<br>
+            B = 2<br>
+            C = 9<br>
+            D = 5
           </strong>
         </div>
-        <div class="hint">曜日の順番を数字に置き換える。</div>
+        <div class="hint" id="hint2">ヒント：まずは「暗い順」とは何を基準にするか考えよう。</div>
         <div class="answer-row">
-          <input id="answer2" placeholder="答えを入力">
+          <input id="answer2" placeholder="4桁の数字を入力">
           <button onclick="checkAnswer(2)">開ける</button>
         </div>
       </div>
@@ -352,10 +361,17 @@
 <script>
   const answers = {
     1: "862",
-    2: "5",
-    3: "86257"
+    2: "2597",
+    3: "86225977"
   };
 
+  const puzzle2Hints = [
+    "ヒント：まずは「暗い順」とは何を基準にするか考えよう。",
+    "ヒント2：明るさの数字を小さい順に並べると、ランプの順番が見えてくる。",
+    "ヒント3：順番は B → D → C → A。対応する数字をそのまま並べよう。"
+  ];
+
+  let puzzle2Misses = 0;
   let items = [];
 
   function normalize(text) {
@@ -378,17 +394,27 @@
       }
 
       if (num === 2) {
-        items.push("金庫の鍵：5");
+        items.push("金庫の鍵：2597");
         showPuzzle(3);
       }
 
       if (num === 3) {
-        items.push("脱出コード：86257");
+        items.push("脱出コード：86225977");
         showClear();
+      }
+
+      if (num === 2) {
+        puzzle2Misses = 0;
+        document.getElementById("hint2").textContent = puzzle2Hints[0];
       }
 
       updateItems();
     } else {
+      if (num === 2) {
+        puzzle2Misses += 1;
+        const hintIndex = Math.min(puzzle2Misses, puzzle2Hints.length - 1);
+        document.getElementById("hint2").textContent = puzzle2Hints[hintIndex];
+      }
       message.textContent = "違うようだ。もう一度よく見てみよう。";
       input.select();
     }
@@ -423,8 +449,10 @@
 
   function restart() {
     items = [];
+    puzzle2Misses = 0;
     updateItems();
     document.getElementById("message").textContent = "";
+    document.getElementById("hint2").textContent = puzzle2Hints[0];
     document.querySelectorAll("input").forEach(input => input.value = "");
     showPuzzle(1);
   }
