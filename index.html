@@ -6,247 +6,161 @@
   <title>暗室からの脱出</title>
   <style>
     * { box-sizing: border-box; }
-
     :root {
-      --bg: #06080d;
-      --wall-top: #192334;
-      --wall-bottom: #0f1724;
-      --floor-a: #11161f;
-      --floor-b: #0b1017;
-      --line: rgba(190, 215, 255, 0.2);
-      --text: #e8eef8;
-      --muted: #9aabbe;
-      --accent: #8fb0ff;
-      --glow: rgba(128, 163, 255, 0.45);
-      --warn: #ffc76f;
+      --text: #eef3ff;
+      --muted: #b8c4db;
+      --line: rgba(190, 215, 255, 0.25);
+      --panel-bg: rgba(7, 12, 21, 0.72);
+      --panel-bg-strong: rgba(7, 12, 21, 0.88);
+      --accent: rgba(140, 177, 255, 0.9);
+      --warn: #ffd58c;
     }
 
     body {
       margin: 0;
       min-height: 100vh;
-      font-family: "Segoe UI", "Hiragino Sans", "Yu Gothic", sans-serif;
-      background: radial-gradient(circle at 20% 0%, #273854 0%, #111927 30%, var(--bg) 70%);
+      background: #070b12;
       color: var(--text);
+      font-family: "Segoe UI", "Hiragino Sans", "Yu Gothic", sans-serif;
       display: grid;
       place-items: center;
-      padding: 14px;
+      padding: 12px;
     }
 
     .game {
-      width: 100%;
-      max-width: 980px;
-      background: rgba(7, 11, 18, 0.94);
+      width: min(1200px, 100%);
       border: 1px solid var(--line);
-      border-radius: 20px;
-      box-shadow: 0 30px 70px rgba(0, 0, 0, 0.65);
-      overflow: hidden;
-    }
-
-    header { padding: 18px 20px 14px; border-bottom: 1px solid var(--line); }
-    h1 { margin: 0 0 5px; font-size: clamp(24px, 5vw, 35px); letter-spacing: .05em; }
-    .subtitle { color: var(--muted); font-size: 14px; }
-    main { padding: 16px; display: grid; gap: 14px; }
-
-    .room {
-      position: relative;
-      min-height: clamp(340px, 48vw, 480px);
       border-radius: 16px;
-      border: 1px solid var(--line);
       overflow: hidden;
-      background: linear-gradient(180deg, var(--wall-top) 0%, var(--wall-bottom) 45%, #0d1522 46%, #0a1018 100%);
-      transition: filter .45s ease, box-shadow .45s ease;
-      box-shadow: inset 0 70px 120px rgba(0, 0, 0, 0.45), inset 0 -40px 80px rgba(0, 0, 0, 0.35);
+      background: #05080f;
+      box-shadow: 0 25px 60px rgba(0, 0, 0, 0.65);
     }
 
-    .room::before {
-      content: "";
-      position: absolute;
-      inset: 46% 0 0;
-      background:
-        linear-gradient(170deg, rgba(255,255,255,0.02), transparent 35%),
-        repeating-linear-gradient(120deg, rgba(255,255,255,0.01) 0 16px, rgba(0,0,0,0.08) 16px 34px),
-        linear-gradient(180deg, var(--floor-a), var(--floor-b));
-      border-top: 1px solid rgba(255,255,255,0.08);
+    .room-wrap {
+      position: relative;
+      aspect-ratio: 16 / 9;
+      background: #000 url('./room.png') center center / cover no-repeat;
     }
-
-    .room::after {
-      content: "";
-      position: absolute;
-      inset: 0;
-      background: radial-gradient(circle at 52% 28%, rgba(140, 170, 255, 0.12), rgba(0,0,0,0.74) 62%);
-      pointer-events: none;
-      transition: opacity .45s ease;
-    }
-
-    .room.dark {
-      filter: brightness(0.48) saturate(0.7);
-    }
-
-    .room.dark::after { opacity: 1; }
-    .room:not(.dark)::after { opacity: 0.55; }
 
     .spot {
       position: absolute;
-      border: 1px solid rgba(160, 190, 255, 0.15);
+      border: 1px solid transparent;
       background: transparent;
       color: transparent;
       cursor: pointer;
-      transition: border-color .2s ease, box-shadow .2s ease, transform .15s ease;
+      border-radius: 8px;
+      transition: border-color .2s ease, box-shadow .2s ease, background-color .2s ease;
       outline: none;
     }
 
     .spot:hover,
     .spot:focus-visible {
-      border-color: rgba(154, 195, 255, 0.68);
-      box-shadow: 0 0 0 2px rgba(102, 141, 225, 0.2), inset 0 0 20px rgba(120, 156, 235, 0.14);
+      border-color: rgba(166, 205, 255, 0.8);
+      box-shadow: 0 0 0 2px rgba(122, 171, 255, 0.25), inset 0 0 14px rgba(148, 193, 255, 0.15);
+      background: rgba(134, 181, 255, 0.08);
     }
 
-    .spot:active { transform: translateY(1px); }
+    .desk { left: 10%; top: 62%; width: 31%; height: 27%; }
+    .wall-panel { left: 41%; top: 35%; width: 10%; height: 17%; }
+    .switch { left: 54%; top: 41%; width: 5.5%; height: 12%; }
+    .shelf { left: 67%; top: 43%; width: 15%; height: 39%; }
+    .door { left: 84%; top: 22%; width: 13%; height: 70%; }
 
-    .glint {
+    .overlay {
       position: absolute;
-      inset: 0;
-      border-radius: inherit;
-      background: radial-gradient(circle at 40% 40%, rgba(155, 194, 255, 0.24), rgba(155, 194, 255, 0) 66%);
-      opacity: 0;
-      pointer-events: none;
-      transition: opacity .2s ease;
+      backdrop-filter: blur(3px);
+      -webkit-backdrop-filter: blur(3px);
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      background: var(--panel-bg);
+      padding: 10px 12px;
+      font-size: 13px;
+      line-height: 1.55;
     }
 
-    .spot:hover .glint,
-    .spot:focus-visible .glint { opacity: 0.75; }
+    .help { top: 12px; left: 12px; max-width: min(42ch, 55%); }
 
-    .desk {
-      left: 7%; bottom: 11%;
-      width: 29%; height: 24%;
-      border-radius: 10px 10px 6px 6px;
-      background:
-        linear-gradient(180deg, rgba(125, 93, 66, 0.72) 0 26%, rgba(71, 49, 33, 0.76) 26% 100%);
-      box-shadow: 0 18px 20px rgba(0,0,0,0.4);
+    .status-panel {
+      top: 12px;
+      right: 12px;
+      min-width: 220px;
+      background: var(--panel-bg-strong);
     }
 
-    .shelf {
-      right: 7%; bottom: 14%;
-      width: 21%; height: 42%;
-      border-radius: 8px;
-      background: linear-gradient(180deg, rgba(66, 81, 104, 0.74), rgba(39, 51, 71, 0.78));
-      box-shadow: 0 18px 22px rgba(0,0,0,0.45);
+    .inventory-panel {
+      left: 12px;
+      right: 12px;
+      bottom: 12px;
+      background: var(--panel-bg-strong);
     }
 
-    .wall-panel {
-      left: 30%; top: 24%;
-      width: 13%; height: 17%;
-      border-radius: 6px;
-      background: linear-gradient(160deg, rgba(90, 104, 128, 0.84), rgba(45, 56, 76, 0.84));
-    }
-
-    .switch {
-      left: 47%; top: 26%;
-      width: 9%; height: 14%;
-      border-radius: 8px;
-      background: linear-gradient(160deg, rgba(86, 95, 116, 0.86), rgba(42, 50, 67, 0.86));
-    }
-
-    .door {
-      left: 60%; bottom: 11%;
-      width: 19%; height: 58%;
-      border-radius: 10px 10px 4px 4px;
-      background: linear-gradient(180deg, rgba(55, 40, 28, 0.82), rgba(29, 19, 12, 0.9));
-      border-color: rgba(150, 112, 82, 0.5);
-      box-shadow: inset 0 0 0 2px rgba(255,255,255,0.03), 0 20px 28px rgba(0,0,0,0.52);
-    }
-
-    .door::after {
-      content: "";
-      position: absolute;
-      width: 10px; height: 10px;
-      border-radius: 50%;
-      right: 12%; top: 53%;
-      background: #cfaf76;
-      box-shadow: 0 0 8px rgba(232, 192, 124, 0.55);
-    }
-
-    .light-indicator {
-      position: absolute;
-      top: 8%; left: 50%; transform: translateX(-50%);
-      width: 34%; height: 6%;
-      border-radius: 999px;
-      background: linear-gradient(180deg, rgba(229, 239, 255, 0.75), rgba(160, 188, 224, 0.18));
-      box-shadow: 0 0 18px rgba(149, 196, 255, 0.7);
-      opacity: 0;
-      transition: opacity .4s ease;
-      pointer-events: none;
-    }
-
-    .room:not(.dark) .light-indicator { opacity: 0.9; }
-
-    .panel { display: grid; gap: 10px; }
-    .card { border: 1px solid var(--line); background: rgba(14, 20, 30, 0.93); border-radius: 12px; padding: 12px; }
-    .status { color: var(--muted); font-size: 13px; line-height: 1.65; }
-    .message { min-height: 26px; color: var(--warn); font-weight: 600; }
-    .inventory { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 8px; }
+    .inventory-title { margin-bottom: 8px; font-weight: 700; }
+    .inventory { display: flex; flex-wrap: wrap; gap: 8px; }
 
     .item {
-      border: 1px solid rgba(143,176,255,0.28);
-      background: rgba(143,176,255,0.12);
-      color: #d5e0ff;
+      border: 1px solid rgba(143,176,255,0.35);
+      background: rgba(143,176,255,0.14);
+      color: #dbe7ff;
       border-radius: 999px;
-      padding: 7px 12px;
+      padding: 6px 12px;
       font-size: 13px;
       cursor: pointer;
     }
 
     .item.active {
-      border-color: rgba(255, 228, 151, 0.7);
-      background: rgba(255, 228, 151, 0.22);
-      color: #ffe9bc;
+      border-color: rgba(255, 223, 145, 0.8);
+      background: rgba(255, 223, 145, 0.24);
+      color: #ffe6b5;
     }
 
-    .clear { display: none; text-align: center; padding: 16px; border-radius: 12px; border: 1px solid rgba(142, 255, 182, 0.35); background: rgba(76, 167, 112, 0.15); }
+    .message {
+      margin-top: 8px;
+      min-height: 1.3em;
+      color: var(--warn);
+      font-weight: 600;
+    }
+
+    .clear {
+      display: none;
+      margin-top: 8px;
+      color: #b5ffcf;
+      font-weight: 700;
+    }
     .clear.show { display: block; }
 
-    @media (max-width: 680px) {
-      main { padding: 12px; }
-      .room { min-height: 320px; }
-      .desk { left: 5%; width: 36%; }
-      .door { left: 57%; width: 24%; }
-      .shelf { right: 5%; width: 24%; }
-      .wall-panel { left: 24%; width: 16%; }
-      .switch { left: 45%; width: 12%; }
+    @media (max-width: 880px) {
+      .room-wrap { aspect-ratio: 4 / 3; }
+      .help { max-width: 75%; }
+      .status-panel { font-size: 12px; min-width: 180px; }
+      .desk { left: 8%; width: 36%; }
+      .door { left: 80%; width: 17%; }
     }
   </style>
 </head>
 <body>
   <div class="game">
-    <header>
-      <h1>暗室からの脱出</h1>
-      <div class="subtitle">部屋を調べ、アイテムを使い、ドアを開けて脱出しよう。</div>
-    </header>
+    <section id="room" class="room-wrap" aria-label="部屋">
+      <div class="overlay help">
+        <strong>操作方法</strong><br>
+        気になる場所をクリックして調べます。<br>
+        入手したアイテムは下の持ち物欄から選択して使用します。
+      </div>
 
-    <main>
-      <section id="room" class="room dark" aria-label="部屋">
-        <div class="light-indicator"></div>
-        <button class="spot desk" onclick="interact('desk')" aria-label="机"><span class="glint"></span></button>
-        <button class="spot wall-panel" onclick="interact('wall')" aria-label="壁のパネル"><span class="glint"></span></button>
-        <button class="spot shelf" onclick="interact('shelf')" aria-label="棚"><span class="glint"></span></button>
-        <button class="spot switch" onclick="interact('switch')" aria-label="スイッチ"><span class="glint"></span></button>
-        <button class="spot door" onclick="interact('door')" aria-label="ドア"><span class="glint"></span></button>
-      </section>
+      <div class="overlay status-panel" id="statusText"></div>
 
-      <section class="panel">
-        <div class="card"><div class="status" id="statusText"></div></div>
-        <div class="card">
-          <div><strong>持ち物（タップで選択）</strong></div>
-          <div class="inventory" id="inventory"></div>
-        </div>
-        <div class="card"><div class="message" id="message"></div></div>
-      </section>
+      <button class="spot desk" onclick="interact('desk')" aria-label="机"></button>
+      <button class="spot wall-panel" onclick="interact('wall')" aria-label="壁のパネル"></button>
+      <button class="spot switch" onclick="interact('switch')" aria-label="スイッチ"></button>
+      <button class="spot shelf" onclick="interact('shelf')" aria-label="棚"></button>
+      <button class="spot door" onclick="interact('door')" aria-label="ドア"></button>
 
-      <section id="clear" class="clear">
-        <h2>脱出成功</h2>
-        <p>鍵が回り、重いドアが開いた。冷たい夜風が差し込む。</p>
-      </section>
-    </main>
+      <div class="overlay inventory-panel">
+        <div class="inventory-title">持ち物（クリックで選択）</div>
+        <div class="inventory" id="inventory"></div>
+        <div class="message" id="message"></div>
+        <div id="clear" class="clear">鍵が回り、重いドアが開いた。脱出成功！</div>
+      </div>
+    </section>
   </div>
 
   <script>
@@ -276,101 +190,100 @@
     }
 
     function renderInventory() {
-      const box = document.getElementById("inventory");
-      box.innerHTML = "";
+      const box = document.getElementById('inventory');
+      box.innerHTML = '';
       if (!inventory.length) {
-        box.innerHTML = '<span class="status">所持品：なし</span>';
+        box.innerHTML = '<span style="color: var(--muted)">所持品：なし</span>';
         return;
       }
 
       inventory.forEach(item => {
-        const btn = document.createElement("button");
-        btn.className = "item" + (selectedItem === item.id ? " active" : "");
+        const btn = document.createElement('button');
+        btn.className = 'item' + (selectedItem === item.id ? ' active' : '');
         btn.textContent = item.name;
         btn.onclick = () => {
           selectedItem = selectedItem === item.id ? null : item.id;
           renderInventory();
-          setMessage(selectedItem ? `「${item.name}」を選択中。` : "アイテム選択を解除した。");
+          setMessage(selectedItem ? `「${item.name}」を選択中。` : 'アイテム選択を解除した。');
         };
         box.appendChild(btn);
       });
     }
 
-    function setMessage(text) { document.getElementById("message").textContent = text; }
+    function setMessage(text) { document.getElementById('message').textContent = text; }
 
     function updateStatus() {
       const status = [
-        `照明：${state.lightsOn ? "ON" : "OFF"}`,
-        `壁パネル：${state.panelOpened ? "開いている" : "閉じている"}`,
-        `棚：${state.lightsOn ? (state.hasKey ? "調査済み" : "中を調べられる") : "暗くて見えない"}`,
-        `ドア：${state.escaped ? "開いた" : "施錠中"}`
-      ].join("<br>");
+        `照明：${state.lightsOn ? 'ON' : 'OFF'}`,
+        `壁パネル：${state.panelOpened ? '開いている' : '閉じている'}`,
+        `棚：${state.lightsOn ? (state.hasKey ? '調査済み' : '中を調べられる') : '暗くて見えない'}`,
+        `ドア：${state.escaped ? '開いた' : '施錠中'}`
+      ].join('<br>');
 
-      document.getElementById("statusText").innerHTML = status;
-      document.getElementById("room").classList.toggle("dark", !state.lightsOn && !state.escaped);
+      document.getElementById('statusText').innerHTML = status;
     }
 
     function interact(target) {
       if (state.escaped) return;
 
-      if (target === "desk") {
+      if (target === 'desk') {
         if (!state.hasDriver) {
           state.hasDriver = true;
-          addItem("driver", "ドライバー");
-          setMessage("机の引き出しからドライバーを見つけた。");
+          addItem('driver', 'ドライバー');
+          setMessage('机の引き出しからドライバーを見つけた。');
         } else {
-          setMessage("机にはもう使えそうな物はない。");
+          setMessage('机にはもう使えそうな物はない。');
         }
       }
 
-      if (target === "wall") {
+      if (target === 'wall') {
         if (!state.panelOpened) {
-          if (selectedItem === "driver") {
+          if (selectedItem === 'driver') {
             state.panelOpened = true;
             state.hasFuse = true;
-            addItem("fuse", "ヒューズ");
-            setMessage("ドライバーでパネルを外し、中からヒューズを手に入れた。");
+            addItem('fuse', 'ヒューズ');
+            setMessage('ドライバーでパネルを外し、中からヒューズを手に入れた。');
           } else {
-            setMessage("ネジ止めされている。工具が必要だ。");
+            setMessage('ネジ止めされている。工具が必要だ。');
           }
         } else {
-          setMessage("開いたパネルの中は空だ。");
+          setMessage('開いたパネルの中は空だ。');
         }
       }
 
-      if (target === "switch") {
+      if (target === 'switch') {
         if (!state.lightsOn) {
-          if (selectedItem === "fuse") {
+          if (selectedItem === 'fuse') {
             state.lightsOn = true;
-            removeItem("fuse");
-            setMessage("ヒューズを差し込むと照明が点いた。部屋が明るくなった。");
+            removeItem('fuse');
+            setMessage('ヒューズを差し込むと照明が点いた。部屋が明るくなった。');
           } else {
-            setMessage("電源が来ていない。ヒューズを入れられそうだ。");
+            setMessage('電源が来ていない。ヒューズを入れられそうだ。');
           }
         } else {
-          setMessage("スイッチはONのまま固定されている。");
+          setMessage('スイッチはONのまま固定されている。');
         }
       }
 
-      if (target === "shelf") {
+      if (target === 'shelf') {
         if (!state.lightsOn) {
-          setMessage("暗くて棚の奥が見えない。");
+          setMessage('暗くて棚の奥が見えない。');
         } else if (!state.hasKey) {
           state.hasKey = true;
-          addItem("key", "鍵");
-          setMessage("棚の奥から小さな鍵を見つけた。");
+          addItem('key', '鍵');
+          setMessage('棚の奥から小さな鍵を見つけた。');
         } else {
-          setMessage("棚にはもう何もない。");
+          setMessage('棚にはもう何もない。');
         }
       }
 
-      if (target === "door") {
-        if (selectedItem === "key" && state.hasKey) {
+      if (target === 'door') {
+        if (selectedItem === 'key' && state.hasKey) {
           state.escaped = true;
-          document.getElementById("clear").classList.add("show");
-          setMessage("鍵を使ってドアを開けた。脱出成功！");
+          document.getElementById('clear').classList.add('show');
+          setMessage('鍵を使ってドアを開けた。脱出成功！');
         } else {
-          setMessage("ドアは鍵がないと開かない。");
+          setMessage('ドアは鍵がないと開かない。');
         }
       }
 
@@ -379,7 +292,7 @@
 
     renderInventory();
     updateStatus();
-    setMessage("まずは部屋を調べよう。");
+    setMessage('まずは部屋を調べよう。');
   </script>
 </body>
 </html>
