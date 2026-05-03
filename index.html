@@ -12,7 +12,6 @@
       --line: rgba(190, 215, 255, 0.25);
       --panel-bg: rgba(7, 12, 21, 0.72);
       --panel-bg-strong: rgba(7, 12, 21, 0.88);
-      --accent: rgba(140, 177, 255, 0.9);
       --warn: #ffd58c;
     }
 
@@ -38,33 +37,34 @@
 
     .room-wrap {
       position: relative;
-      aspect-ratio: 16 / 9;
-      background: #000 url('./room.png') center center / cover no-repeat;
+      aspect-ratio: 3 / 2;
+      background: #000;
+    }
+
+    .room-svg {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      display: block;
     }
 
     .spot {
-      position: absolute;
-      border: 1px solid transparent;
-      background: transparent;
-      color: transparent;
+      fill: transparent;
+      stroke: transparent;
+      stroke-width: 2;
       cursor: pointer;
-      border-radius: 6px;
-      transition: border-color .2s ease, box-shadow .2s ease, background-color .2s ease;
-      outline: none;
+      transition: fill .2s ease, stroke .2s ease, filter .2s ease;
+      pointer-events: all;
     }
 
     .spot:hover,
     .spot:focus-visible {
-      border-color: rgba(236, 244, 255, 0.9);
-      box-shadow: 0 0 0 1px rgba(236, 244, 255, 0.7), inset 0 0 10px rgba(255, 255, 255, 0.12);
-      background: rgba(255, 255, 255, 0.05);
+      fill: rgba(255, 255, 255, 0.08);
+      stroke: rgba(236, 244, 255, 0.95);
+      filter: drop-shadow(0 0 8px rgba(255, 255, 255, 0.75));
+      outline: none;
     }
-
-    .desk { left: 120px; top: 470px; width: 320px; height: 160px; }
-    .wall-panel { left: 130px; top: 220px; width: 140px; height: 140px; }
-    .switch { left: 420px; top: 300px; width: 80px; height: 120px; }
-    .door { left: 520px; top: 180px; width: 240px; height: 520px; }
-    .shelf { left: 820px; top: 220px; width: 260px; height: 520px; }
 
     .overlay {
       position: absolute;
@@ -76,6 +76,7 @@
       padding: 10px 12px;
       font-size: 13px;
       line-height: 1.55;
+      z-index: 2;
     }
 
     .help { top: 12px; left: 12px; max-width: min(42ch, 55%); }
@@ -126,19 +127,28 @@
       color: #b5ffcf;
       font-weight: 700;
     }
+
     .clear.show { display: block; }
 
     @media (max-width: 880px) {
-      .room-wrap { aspect-ratio: 4 / 3; }
       .help { max-width: 75%; }
       .status-panel { font-size: 12px; min-width: 180px; }
-      /* Hotspot positions are percentage-based and stay aligned responsively. */
     }
   </style>
 </head>
 <body>
   <div class="game">
     <section id="room" class="room-wrap" aria-label="部屋">
+      <svg class="room-svg" viewBox="0 0 1536 1024" aria-label="部屋の画像" role="img" preserveAspectRatio="xMidYMid meet">
+        <image href="./room.png" x="0" y="0" width="1536" height="1024" />
+
+        <rect class="spot" x="72" y="472" width="418" height="326" rx="8" ry="8" onclick="interact('desk')" aria-label="机" tabindex="0"></rect>
+        <rect class="spot" x="206" y="282" width="210" height="182" rx="8" ry="8" onclick="interact('wall')" aria-label="壁のパネル" tabindex="0"></rect>
+        <rect class="spot" x="486" y="452" width="116" height="138" rx="8" ry="8" onclick="interact('switch')" aria-label="スイッチ" tabindex="0"></rect>
+        <rect class="spot" x="654" y="298" width="247" height="490" rx="8" ry="8" onclick="interact('door')" aria-label="ドア" tabindex="0"></rect>
+        <rect class="spot" x="1030" y="296" width="275" height="500" rx="8" ry="8" onclick="interact('shelf')" aria-label="棚" tabindex="0"></rect>
+      </svg>
+
       <div class="overlay help">
         <strong>操作方法</strong><br>
         気になる場所をクリックして調べます。<br>
@@ -146,12 +156,6 @@
       </div>
 
       <div class="overlay status-panel" id="statusText"></div>
-
-      <button class="spot desk" onclick="interact('desk')" aria-label="机"></button>
-      <button class="spot wall-panel" onclick="interact('wall')" aria-label="壁のパネル"></button>
-      <button class="spot switch" onclick="interact('switch')" aria-label="スイッチ"></button>
-      <button class="spot shelf" onclick="interact('shelf')" aria-label="棚"></button>
-      <button class="spot door" onclick="interact('door')" aria-label="ドア"></button>
 
       <div class="overlay inventory-panel">
         <div class="inventory-title">持ち物（クリックで選択）</div>
